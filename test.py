@@ -51,7 +51,7 @@ while True:
             alpha[ord(char)-97] = -1
             i += 1
         else:
-            for num in range (0, 30):
+            for num in range (0, 256):
                 if alpha[num] >= 0:
                     alpha[num] = 0
             incomplete = 0
