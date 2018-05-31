@@ -2,5 +2,5 @@ The file test.py contains the code that continuously guesses letters and starts 
 
 To run the code simply use the following commands:
 
-  chmod +x test.py
-  ./test.py
+chmod +x test.py
+./test.py
