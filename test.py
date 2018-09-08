@@ -7,19 +7,19 @@ import re
 
 URL = "http://upe.42069.fun/piL60"
 seq = "etaoinshrdlcumwfgypbvkjxqz"
-alpha = []
+alphabet = []                       #alphabet frequency list. -1 means the letter has been guessed already. Any number greater denotes how many times it shows up in possible words
 file = open('file.txt', 'r')
 
-for num in range (0, 500):
-    alpha.append(0)
+for num in range (0, 25):           #initialize alphabet frequency list
+    alphabet.append(0)
 
 while True:
-    for num in range (0, 100):
-        alpha[num] = 0
-    level = 1
-    done = 0
-    r = requests.get(url = URL)
+    for num in range (0, 25):       #reset frequency to 0 for new game
+        alphabet[num] = 0
+    level = 0                       #reset level (initial state) to 0
+    gameOver = 0
     i = 0
+    r = requests.get(url = URL)
     
     while True:
         data = r.json()
@@ -43,29 +43,29 @@ while True:
                 %(lyrics))
             break
         
-        if remaining_guesses == 2:
-            if done == 0:
+        if remaining_guesses == 2:      #if the last guess was wrong, switch to level 1
+            if gameOver == 0:
                 level = 1
 
         time.sleep(1)
         
-        if level == 0:
-            while alpha[ord(seq[i])-97] == -1:
+        if level == 0:                  #start with first letter not already guessed
+            while alphabet[ord(seq[i])-97] == -1:
                 i += 1
             char = seq[i]
-            alpha[ord(char)-97] = -1
+            alphabet[ord(char)-97] = -1
             i += 1
-        else:
+        else:                           #determine all possible words
             for num in range (0, 30):
-                if alpha[num] >= 0:
-                    alpha[num] = 0
+                if alphabet[num] >= 0:
+                    alphabet[num] = 0
             incomplete = 0
             exp = "^"
             for letter in state:
                 if letter == '_':
                     incomplete = 1
                     exp += "."
-                elif not letter.isalpha():
+                elif not letter.isalphabet():
                     if incomplete == 1:
                         exp += "$"
                         file = open('file.txt', 'r')
@@ -74,7 +74,7 @@ while True:
                             if re.search(r""+exp, line, re.IGNORECASE):
                                 valid = 1
                                 for let in line:
-                                    if alpha[ord(let)-97] < 0:
+                                    if alphabet[ord(let)-97] < 0:
                                         check = 0
                                         for baselet in exp:
                                             if let == baselet:
@@ -90,7 +90,7 @@ while True:
                             if re.search(r""+exp, line, re.IGNORECASE):
                                 valid = 1
                                 for let in line:
-                                    if alpha[ord(let)-97] < 0:
+                                    if alphabet[ord(let)-97] < 0:
                                         check = 0
                                         for baselet in exp:
                                             if let == baselet:
@@ -102,16 +102,16 @@ while True:
                                 if valid == 0:
                                     continue
                                 for let in line:
-                                    if alpha[ord(let)-97] >= 0:
+                                    if alphabet[ord(let)-97] >= 0:  #add weights when less than 5 words are possible
                                         if uncertain == 1:
-                                            alpha[ord(let)-97] += 200
+                                            alphabet[ord(let)-97] += 200
                                         if uncertain == 2:
-                                            alpha[ord(let)-97] += 100
+                                            alphabet[ord(let)-97] += 100
                                         if uncertain == 3:
-                                            alpha[ord(let)-97] += 50
+                                            alphabet[ord(let)-97] += 50
                                         if uncertain == 4:
-                                            alpha[ord(let)-97] += 25
-                                        alpha[ord(let)-97] += 1
+                                            alphabet[ord(let)-97] += 25
+                                        alphabet[ord(let)-97] += 1
                     exp = "^"
                     incomplete = 0
                 else:
@@ -124,7 +124,7 @@ while True:
                     if re.search(r""+exp, line, re.IGNORECASE):
                         valid = 1
                         for let in line:
-                            if alpha[ord(let)-97] < 0:
+                            if alphabet[ord(let)-97] < 0:
                                 check = 0
                                 for baselet in exp:
                                     if let == baselet:
@@ -140,7 +140,7 @@ while True:
                     if re.search(r""+exp, line, re.IGNORECASE):
                         valid = 1
                         for let in line:
-                            if alpha[ord(let)-97] < 0:
+                            if alphabet[ord(let)-97] < 0:
                                 check = 0
                                 for baselet in exp:
                                     if let == baselet:
@@ -152,36 +152,36 @@ while True:
                         if valid == 0:
                             continue
                         for let in line:
-                            if alpha[ord(let)-97] >= 0:
+                            if alphabet[ord(let)-97] >= 0:
                                 if uncertain == 1:
-                                    alpha[ord(let)-97] += 200
+                                    alphabet[ord(let)-97] += 200
                                 if uncertain == 2:
-                                    alpha[ord(let)-97] += 100
+                                    alphabet[ord(let)-97] += 100
                                 if uncertain == 3:
-                                    alpha[ord(let)-97] += 50
+                                    alphabet[ord(let)-97] += 50
                                 if uncertain == 4:
-                                    alpha[ord(let)-97] += 25
-                                alpha[ord(let)-97] += 1
-            maxy = 0
+                                    alphabet[ord(let)-97] += 25
+                                alphabet[ord(let)-97] += 1
+            maxWeight = 0
             c = 0
-            for thing in range(0,30):
-                if alpha[thing] > maxy:
-                    maxy = alpha[thing]
-                    c = thing
-            if maxy == 0:
-                done = 1
+            for k in range(0,25):
+                if alphabet[k] > maxWeight:     #go through list of frequencies and find highest one
+                    maxWeight = alphabet[k]
+                    c = k
+            if maxWeight == 0:
+                gameOver = 1
                 level = 0
-                while alpha[ord(seq[i])-97] == -1:
+                while alphabet[ord(seq[i])-97] == -1:
                     i += 1
                 char = seq[i]
-                alpha[ord(seq[i])-97] = -1
+                alphabet[ord(seq[i])-97] = -1
                 i += 1
 
-            alpha[c] = -1
+            alphabet[c] = -1                    #mark guessed one as -1 in frequency list
             char = chr( c + 97 )
         
         print ("Guessed:", char)
         data = {"guess" : char}
-        r = requests.post(url = URL, data = data)
+        r = requests.post(url = URL, data = data)   #submit guessed letter
         
     time.sleep(2)
