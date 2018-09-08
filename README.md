@@ -1,7 +1,5 @@
+The Hulu Hangman challenge involves coding a program that plays Hangman by sending HTTP requests. It was used as a induction requirement for Upsilon Pi Epsilon Spring 2018. Our requirement was a 20% success rate within 100 games, and successful games being within 3 guesses.
+
+I coded in Python, and used the 3,000 most common English words, along with any new words encountered in practice games as a dictionary. The initial state was guessing the most common letters in English. Once it hit the first wrong guess, it would switch to state two and determine all possible words using the dictionary (which excluded any wrongly guessed letters). In addition, if a unknown word had fewer than 5 possibilities, weights would be added to those words, so characters in them would count for more. Finally, the program would choose the heaviest weighted character. The success rate ended up being almost 40%.
+
 The file test.py contains the code that continuously guesses letters and starts new games. The file file.txt contains a dictionary which test.py refers to whe selecting a letter.
-
-To run the code simply use the following commands:
-
-chmod +x test.py
-
-./test.py
